@@ -23,7 +23,7 @@ const port = process.env.PORT || 4242;
 
 		// Routes
 		app.get('/', async (req: Request, res: Response) => {
-			res.send('🏃‍♂️‍➡️ Server is Running!');
+			res.send('Server is Running!');
 		});
 
 		// Actual Routes
@@ -54,10 +54,10 @@ const port = process.env.PORT || 4242;
 
 		// Start the Server
 		app.listen(port, () => {
-			console.log('✅ Server is Running on Port: ', port);
+			console.log('Server is Running on Port: ', port);
 		});
 	} catch (error) {
-		console.error('⚠️ Failed to Start the Server: ', error);
+		console.error('Failed to Start the Server: ', error);
 		// process.exit(1);
 	}
 })();

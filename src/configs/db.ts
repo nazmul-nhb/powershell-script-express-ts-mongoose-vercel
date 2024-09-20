@@ -10,14 +10,14 @@ const mongoURI = process.env.MONGO_CONNECTION_STRING as string;
 export const connectDB = async () => {
 	try {
 		await mongoose.connect(mongoURI);
-		console.log('✅ DB is Connected!');
+		console.log('DB is Connected!');
 	} catch (error) {
 		if (error instanceof Error) {
 			console.error(error.message);
 		} else {
-			console.error('⚠️ Unknown Error Occurred!');
+			console.error('Unknown Error Occurred!');
 		}
-		console.log('⚠️ DB is Not Connected!');
+		console.log('DB is Not Connected!');
 		// process.exit(1);
 	}
 };
