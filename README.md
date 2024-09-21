@@ -1,7 +1,7 @@
 
 # Express TypeScript Server Template
 
-**Just use the ```create-express-ts-server.ps1`` file, You don't need this whole folder!**
+**Just use the `create-express-ts-server.ps1` file, You don't need this whole folder!**
 
 This PowerShell script automates the creation of a basic Express server setup with TypeScript, Mongoose, and essential configurations like ESLint and Prettier. The template includes a MongoDB configuration, routing, controllers, and utility scripts. Also Provides vercel.json file for easy vercel deployment.
 

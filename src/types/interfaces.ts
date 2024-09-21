@@ -7,12 +7,3 @@ export interface IProductDetails {
 	price: number;
 	productImage: string;
 }
-
-export interface IUserPayload {
-	email: string;
-}
-
-export interface IDecodedToken {
-	email: string;
-}
-
