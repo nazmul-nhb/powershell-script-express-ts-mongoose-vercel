@@ -10,7 +10,8 @@ dotenv.config();
 const app: Application = express();
 const port = process.env.PORT || 4242;
 
-// Use IIFE to start the Server
+// Connect to DB
+connectDB();
 
 // Middlewares
 // TODO: Add CORS Options when project is done!
@@ -45,14 +46,7 @@ app.use(
 
 // Start the Server
 app.listen(port, async () => {
-	try {
-		// Connect to DB
-		await connectDB();
-		console.log('🏃 Server is Running on Port: ', port);
-	} catch (error) {
-		console.error('⚠️ Failed to Start the Server: ', error);
-		process.exit(1);
-	}
+	console.log('🏃 Server is Running on Port: ', port);
 });
 
 export default app;

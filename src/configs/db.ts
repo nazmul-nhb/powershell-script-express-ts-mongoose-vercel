@@ -15,14 +15,30 @@ if (!mongoURI) {
 export const connectDB = async () => {
 	try {
 		await mongoose.connect(mongoURI);
+
 		console.log('✅ MongoDB is Connected!');
+
+		// Listen for established connection
+		mongoose.connection.on('connected', () => {
+			console.log('✅ MongoDB is Connected!');
+		});
+
+		// Listen for connection errors
+		mongoose.connection.on('error', (err) => {
+			console.error('❌ MongoDB Connection Error: ', err.message);
+		});
+
+		// Optional: Listen for disconnection
+		mongoose.connection.on('disconnected', () => {
+			console.log('⚠️ MongoDB is Disconnected!');
+		});
 	} catch (error) {
 		if (error instanceof Error) {
-			console.error(error.message);
+			console.error('❌ MongoDB Connection Failed:', error.message);
 		} else {
 			console.error('⚠️ Unknown Error Occurred!');
 		}
-		console.log('⚠️ DB is Not Connected!');
+		console.log('⚠️ MongoDB is Not Connected!');
 		process.exit(1);
 	}
 };
