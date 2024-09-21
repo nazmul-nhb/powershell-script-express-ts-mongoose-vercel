@@ -22,8 +22,8 @@ const port = process.env.PORT || 4242;
 		app.use(express.json());
 
 		// Routes
-		app.get('/', async (req: Request, res: Response) => {
-			res.send('🏃‍♂️‍➡️ Server is Running!');
+		app.get('/', (req: Request, res: Response) => {
+			res.status(200).send({ success: true, message: '🏃 Server is Running!' });
 		});
 
 		// Actual Routes
@@ -52,10 +52,19 @@ const port = process.env.PORT || 4242;
 			},
 		);
 
-		// Start the Server
-		app.listen(port, () => {
-			console.log('✅ Server is Running on Port: ', port);
-		});
+		// Start the server locally only (if not on Vercel)
+		if (process.env.NODE_ENV !== 'production') {
+			const server = app.listen(port, () => {
+				console.log('🏃 Server is Running on Port: ', port);
+			});
+
+			// Graceful Shutdown
+			process.on('SIGTERM', () => {
+				server.close(() => {
+					console.log('Process terminated');
+				});
+			});
+		}
 	} catch (error) {
 		console.error('⚠️ Failed to Start the Server: ', error);
 		// process.exit(1);
@@ -63,4 +72,3 @@ const port = process.env.PORT || 4242;
 })();
 
 export default app;
-

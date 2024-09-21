@@ -1,11 +1,11 @@
 {
 	"name": "powershell-script-express-ts-mongoose-vercel",
 	"version": "1.0.0",
-	"main": "src/index.ts",
+	"main": "index.js",
 	"scripts": {
-		"start": "node dist/index.js",
-		"dev": "nodemon src/index.ts",
-		"build": "rimraf dist && tsc"
+    "dev": "nodemon src/index.ts",
+		"build": "rimraf dist && tsc",
+		"start": "node dist/index.js"
 	},
 	"keywords": [
 		"powershell",
@@ -16,7 +16,7 @@
 	],
 	"author": "Nazmul Hassan",
 	"license": "ISC",
-	"description": "Powershell Script to Auto-Generate Express TypeScript Server Template with Mongoose & Vercel Setup!",
+	"description": "PowerShell Script to Auto-Generate Express TypeScript Server Template with Mongoose & Vercel Setup!",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/nazmul-nhb/powershell-script-express-ts-mongoose-vercel.git"
