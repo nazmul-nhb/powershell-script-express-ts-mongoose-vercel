@@ -14,7 +14,7 @@ const port = process.env.PORT || 4242;
 (async () => {
 	try {
 		// Connect to DB
-		await connectDB();
+		// await connectDB();
 
 		// Middlewares
 		// TODO: Add CORS Options when project is done!
@@ -61,7 +61,7 @@ const port = process.env.PORT || 4242;
 			// Graceful Shutdown
 			process.on('SIGTERM', () => {
 				server.close(() => {
-					console.log('Process terminated');
+					console.log('Process Terminated!');
 				});
 			});
 		}
