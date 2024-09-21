@@ -6,14 +6,14 @@ dotenv.config();
 // Import MongoDB uri from the .env file
 const mongoURI = process.env.MONGO_CONNECTION_STRING as string;
 
-// Throw error if there is no connection string
-if (!mongoURI) {
-	throw new Error('MongoDB URI is Not Defined!');
-}
-
 // Connect to MongoDB using Mongoose
 export const connectDB = async () => {
 	try {
+		// Throw error if there is no connection string
+		if (!mongoURI) {
+			throw new Error('MongoDB URI is Not Defined!');
+		}
+
 		await mongoose.connect(mongoURI);
 
 		console.log('✅	MongoDB is Connected!');

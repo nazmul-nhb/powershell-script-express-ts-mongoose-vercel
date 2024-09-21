@@ -36,7 +36,7 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
 // Final/Global Error Handler
 app.use(
 	(error: IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
-		console.error(error);
+		console.error('❌	Error: ' + error.message);
 		res.status(error.status || 500).send({
 			success: false,
 			message: error.message || 'Internal Server Error!',

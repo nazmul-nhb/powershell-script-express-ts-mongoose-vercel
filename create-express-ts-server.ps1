@@ -239,7 +239,7 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
 // Final/Global Error Handler
 app.use(
 	(error: IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
-		console.error(error);
+		console.error('❌	Error: ' + error.message);
 		res.status(error.status || 500).send({
 			success: false,
 			message: error.message || 'Internal Server Error!',
@@ -266,14 +266,14 @@ dotenv.config();
 // Import MongoDB uri from the .env file
 const mongoURI = process.env.MONGO_CONNECTION_STRING as string;
 
-// Throw error if there is no connection string
-if (!mongoURI) {
-	throw new Error('MongoDB URI is Not Defined!');
-}
-
 // Connect to MongoDB using Mongoose
 export const connectDB = async () => {
 	try {
+		// Throw error if there is no connection string
+		if (!mongoURI) {
+			throw new Error('MongoDB URI is Not Defined!');
+		}
+
 		await mongoose.connect(mongoURI);
 
 		console.log('✅	MongoDB is Connected!');
