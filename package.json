@@ -1,7 +1,7 @@
 {
 	"name": "powershell-script-express-ts-mongoose-vercel",
 	"version": "1.0.0",
-	"main": "src/index.ts",
+	"main": "index.js",
 	"scripts": {
 		"dev": "nodemon src/index.ts",
 		"build": "rimraf dist && tsc",

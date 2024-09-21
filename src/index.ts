@@ -51,7 +51,7 @@ app.listen(port, async () => {
 		console.log('🏃 Server is Running on Port: ', port);
 	} catch (error) {
 		console.error('⚠️ Failed to Start the Server: ', error);
-		// process.exit(1);
+		process.exit(1);
 	}
 });
 
