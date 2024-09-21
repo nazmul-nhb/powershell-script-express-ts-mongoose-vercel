@@ -46,7 +46,7 @@ app.use(
 
 // Start the Server
 app.listen(port, async () => {
-	console.log('🏃 Server is Running on Port: ', port);
+	console.log('🏃	Server is Running on Port: ', port);
 });
 
 export default app;
