@@ -45,7 +45,7 @@ export const createProduct = async (
 
 // Get all products
 export const getProducts = async (
-	req: Request,
+	_req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {

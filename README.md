@@ -15,7 +15,7 @@ Portfolio: [nazmul-nhb.vercel.app](https://nazmul-nhb.vercel.app)
 
 - **Express**: Set up a server using Express.js with TypeScript.
 - **TypeScript**: Preconfigured with TypeScript and required types.
-- **Mongoose**: Preconfigured MongoDB boilerplate with Mongoose.
+- **Mongoose**: Preconfigured MongoDB boilerplate connection with Mongoose.
 - **Nodemon & TS-Node**: For development convenience with hot reloading.
 - **ESLint & Prettier**: Preconfigured for code linting and formatting.
 - **Vercel Deployment**: Ready for deployment on Vercel with `vercel.json` configuration.

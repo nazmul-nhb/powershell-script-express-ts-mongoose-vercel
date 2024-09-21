@@ -40,10 +40,10 @@ $packageJson.scripts = $scripts
 $packageJson | ConvertTo-Json -Depth 32 | Set-Content -Path "package.json"
 
 # Install dependencies
-npm install express cors dotenv mongoose jsonwebtoken
+npm install express cors dotenv mongoose
 
 # Install devDependencies
-npm install -D typescript nodemon ts-node rimraf eslint prettier eslint-config-prettier @types/node @types/express @types/cors @types/dotenv @types/mongoose @types/jsonwebtoken @typescript-eslint/eslint-plugin @typescript-eslint/parser 
+npm install -D typescript nodemon ts-node rimraf eslint prettier eslint-config-prettier @types/node @types/express @types/cors @types/dotenv @types/mongoose @typescript-eslint/eslint-plugin @typescript-eslint/parser 
 
 # Create folder structure
 $folders = @("src", "src/routes", "src/types", "src/controllers", "src/models", "src/middlewares", "src/configs", "src/utils", "src/helpers")
@@ -52,12 +52,9 @@ $folders | ForEach-Object { New-Item -ItemType Directory -Path $_ }
 # Create basic files
 $files = @(
     "src/index.ts",
-    "src/routes/authRoutes.ts",
     "src/routes/exampleRoutes.ts",
     "src/models/exampleModel.ts",
-    "src/controllers/authControllers.ts",
     "src/controllers/exampleControllers.ts",
-    "src/middlewares/verify.ts",
     "src/configs/db.ts",
     "src/types/interfaces.ts",
     "src/types/model.ts",
@@ -98,8 +95,7 @@ dist
 @"
 {
 	"env": {
-		"es2021": true,
-    "browser": true,
+		"browser": true,
 		"node": true
 	},
 	"extends": [
@@ -136,7 +132,6 @@ dist
 	"singleQuote": true,
 	"useTabs": true
 }
-
 "@ > .prettierrc.json
 
 # Add tsconfig.json content
@@ -179,8 +174,6 @@ dist
 @"
 MONGO_CONNECTION_STRING=
 
-TOKEN_SECRET=
-
 PORT=
 
 "@ > .env
@@ -198,7 +191,8 @@ PORT=
 	"routes": [
 		{
 			"src": "/(.*)",
-			"dest": "src/index.ts"
+			"dest": "src/index.ts",
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 		}
 	]
 }
@@ -219,57 +213,44 @@ dotenv.config();
 const app: Application = express();
 const port = process.env.PORT || 4242;
 
-// Use IIFE to start the Server
-(async () => {
-	try {
-		// Connect to DB
-		await connectDB();
+// Connect to DB
+connectDB();
 
-		// Middlewares
-		// TODO: Add CORS Options when project is done!
-		app.use(cors());
-		app.use(express.json());
+// Middlewares
+// TODO: Add CORS Options when project is done!
+app.use(cors());
+app.use(express.json());
 
-		// Routes
-		app.get('/', async (req: Request, res: Response) => {
-			res.send('🏃‍♂️‍➡️ Server is Running!');
+// Routes
+app.get('/', (_req: Request, res: Response) => {
+	res.status(200).send({ success: true, message: '🏃 Server is Running!' });
+});
+
+// Actual Routes
+app.use('/example', exampleRoutes);
+
+// Error Handler for 404
+app.use((_req: Request, _res: Response, next: NextFunction) => {
+	const error: IErrorObject = new Error('Requested URL Not Found!');
+	error.status = 404;
+	next(error);
+});
+
+// Final/Global Error Handler
+app.use(
+	(error: IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
+		console.error(error);
+		res.status(error.status || 500).send({
+			success: false,
+			message: error.message || 'Internal Server Error!',
 		});
+	},
+);
 
-		// Actual Routes
-		app.use('/example', exampleRoutes);
-
-		// Error Handler for 404
-		app.use((req: Request, res: Response, next: NextFunction) => {
-			const error: IErrorObject = new Error('Requested URL Not Found!');
-			error.status = 404;
-			next(error);
-		});
-
-		// Final Error Handler
-		app.use(
-			(
-				error: IErrorObject,
-				req: Request,
-				res: Response,
-				next: NextFunction,
-			) => {
-				console.error(error);
-				res.status(error.status || 500).send({
-					success: false,
-					message: error.message || 'Internal Server Error!',
-				});
-			},
-		);
-
-		// Start the Server
-		app.listen(port, () => {
-			console.log('✅ Server is Running on Port: ', port);
-		});
-	} catch (error) {
-		console.error('⚠️ Failed to Start the Server: ', error);
-		// process.exit(1);
-	}
-})();
+// Start the Server
+app.listen(port, async () => {
+	console.log('🏃	Server is Running on Port: ', port);
+});
 
 export default app;
 
@@ -285,19 +266,40 @@ dotenv.config();
 // Import MongoDB uri from the .env file
 const mongoURI = process.env.MONGO_CONNECTION_STRING as string;
 
+// Throw error if there is no connection string
+if (!mongoURI) {
+	throw new Error('MongoDB URI is Not Defined!');
+}
+
 // Connect to MongoDB using Mongoose
 export const connectDB = async () => {
 	try {
 		await mongoose.connect(mongoURI);
-		console.log('✅ DB is Connected!');
+
+		console.log('✅	MongoDB is Connected!');
+
+		// Listen for established connection
+		mongoose.connection.on('connected', () => {
+			console.log('✅	MongoDB is Connected!');
+		});
+
+		// Listen for connection errors
+		mongoose.connection.on('error', (err) => {
+			console.error('❌	MongoDB Connection Error: ', err.message);
+		});
+
+		// Optional: Listen for disconnection
+		mongoose.connection.on('disconnected', () => {
+			console.log('⚠️	MongoDB is Disconnected!');
+		});
 	} catch (error) {
 		if (error instanceof Error) {
-			console.error(error.message);
+			console.error('❌	MongoDB Connection Failed:', error.message);
 		} else {
-			console.error('⚠️ Unknown Error Occurred!');
+			console.error('⚠️	Unknown Error Occurred!');
 		}
-		console.log('⚠️ DB is Not Connected!');
-		// process.exit(1);
+		console.log('⚠️	MongoDB is Not Connected!');
+		process.exit(1);
 	}
 };
 
@@ -313,14 +315,6 @@ export interface IProductDetails {
 	title: string;
 	price: number;
 	productImage: string;
-}
-
-export interface IUserPayload {
-	email: string;
-}
-
-export interface IDecodedToken {
-	email: string;
 }
 
 "@ > src/types/interfaces.ts
@@ -414,7 +408,7 @@ export const createProduct = async (
 
 // Get all products
 export const getProducts = async (
-	req: Request,
+	_req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
@@ -582,84 +576,84 @@ export default router;
 "@ > src/routes/exampleRoutes.ts
 
 # Add auth route
-@"
-import express, { Router } from 'express';
-import { sendToken } from '../controllers/authControllers';
+# @"
+# import express, { Router } from 'express';
+# import { sendToken } from '../controllers/authControllers';
 
-const router: Router = express.Router();
+# const router: Router = express.Router();
 
-router.post('/', sendToken);
+# router.post('/', sendToken);
 
-export default router;
+# export default router;
 
-"@ > src/routes/authRoutes.ts
+# "@ > src/routes/authRoutes.ts
 
 # Add Controller to generate and send token to the client
-@"
-import { NextFunction, Request, Response } from 'express';
-import { IUserPayload } from '../types/interfaces';
-import jwt from 'jsonwebtoken';
+# @"
+# import { NextFunction, Request, Response } from 'express';
+# import { IUserPayload } from '../types/interfaces';
+# import jwt from 'jsonwebtoken';
 
-export const sendToken = (
-	req: Request<{}, {}, IUserPayload>,
-	res: Response,
-	next: NextFunction,
-) => {
-	try {
-		const user = req.body;
-		const tokenSecret = process.env.TOKEN_SECRET;
-		if (!tokenSecret) {
-			return res.status(500).send({ message: 'Token Secret Not Configured!' });
-		}
-		const token = jwt.sign(user, tokenSecret);
-		res.send({ token });
-	} catch (error) {
-		if (error instanceof Error) {
-			console.error('Error Creating Token: ', error.message);
-			res.status(400).send({
-				success: false,
-				message: error.message,
-			});
-		} else {
-			next(error);
-		}
-	}
-};
+# export const sendToken = (
+# 	req: Request<{}, {}, IUserPayload>,
+# 	res: Response,
+# 	next: NextFunction,
+# ) => {
+# 	try {
+# 		const user = req.body;
+# 		const tokenSecret = process.env.TOKEN_SECRET;
+# 		if (!tokenSecret) {
+# 			return res.status(500).send({ message: 'Token Secret Not Configured!' });
+# 		}
+# 		const token = jwt.sign(user, tokenSecret);
+# 		res.send({ token });
+# 	} catch (error) {
+# 		if (error instanceof Error) {
+# 			console.error('Error Creating Token: ', error.message);
+# 			res.status(400).send({
+# 				success: false,
+# 				message: error.message,
+# 			});
+# 		} else {
+# 			next(error);
+# 		}
+# 	}
+# };
 
-"@ > src/controllers/authControllers.ts
+# "@ > src/controllers/authControllers.ts
 
 # Verify user middleware
 @"
-import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
-import { IDecodedToken } from '../types/interfaces';
+# import jwt from 'jsonwebtoken';
+# import { Request, Response, NextFunction } from 'express';
+# import { IDecodedToken } from '../types/interfaces';
 
-export const verifyToken = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
-	if (!req.headers.authorization) {
-		return res
-			.status(401)
-			.send({ success: false, message: 'Unauthorized Access!' });
-	}
+# export const verifyToken = (
+# 	req: Request,
+# 	res: Response,
+# 	next: NextFunction,
+# ) => {
+# 	if (!req.headers.authorization) {
+# 		return res
+# 			.status(401)
+# 			.send({ success: false, message: 'Unauthorized Access!' });
+# 	}
 
-	const token = req.headers.authorization.split(' ')[1];
-	const tokenSecret = process.env.TOKEN_SECRET as string;
+# 	const token = req.headers.authorization.split(' ')[1];
+# 	const tokenSecret = process.env.TOKEN_SECRET as string;
 
-	jwt.verify(token, tokenSecret, (error, decoded) => {
-		if (error) {
-			return res
-				.status(401)
-				.send({ success: false, message: 'Unauthorized Access!' });
-		}
-		(req as any).user = decoded as IDecodedToken;
-		next();
-	});
-};
+# 	jwt.verify(token, tokenSecret, (error, decoded) => {
+# 		if (error) {
+# 			return res
+# 				.status(401)
+# 				.send({ success: false, message: 'Unauthorized Access!' });
+# 		}
+# 		(req as any).user = decoded as IDecodedToken;
+# 		next();
+# 	});
+# };
 
-"@ > src/middlewares/verify.ts
+# "@ > src/middlewares/verify.ts
 
 # Generate 64 Bit Secret Hex Code
 @"

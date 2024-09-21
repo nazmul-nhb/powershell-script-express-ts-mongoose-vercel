@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
 	res.status(200).send({ success: true, message: '🏃 Server is Running!' });
 });
 
@@ -27,15 +27,15 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/example', exampleRoutes);
 
 // Error Handler for 404
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((_req: Request, _res: Response, next: NextFunction) => {
 	const error: IErrorObject = new Error('Requested URL Not Found!');
 	error.status = 404;
 	next(error);
 });
 
-// Final Error Handler
+// Final/Global Error Handler
 app.use(
-	(error: IErrorObject, req: Request, res: Response, next: NextFunction) => {
+	(error: IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
 		console.error(error);
 		res.status(error.status || 500).send({
 			success: false,
