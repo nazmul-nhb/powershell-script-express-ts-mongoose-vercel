@@ -163,7 +163,7 @@ dist
 
 ## Includes
 
-- Preconfigured `dev`, `build` and `start` commands
+- Preconfigured dev, build and start commands
 - Vercel Deployment Configuration
 - Prettier and eslint Configuration
 - TypeScript Configuration
@@ -625,7 +625,7 @@ export default router;
 # "@ > src/controllers/authControllers.ts
 
 # Verify user middleware
-@"
+# @"
 # import jwt from 'jsonwebtoken';
 # import { Request, Response, NextFunction } from 'express';
 # import { IDecodedToken } from '../types/interfaces';
