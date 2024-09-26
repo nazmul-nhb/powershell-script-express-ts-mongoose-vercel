@@ -43,7 +43,7 @@ $packageJson | ConvertTo-Json -Depth 32 | Set-Content -Path "package.json"
 npm install express cors dotenv mongoose
 
 # Install devDependencies
-npm install -D typescript nodemon ts-node rimraf eslint prettier eslint-config-prettier @types/node @types/express @types/cors @types/dotenv @types/mongoose @typescript-eslint/eslint-plugin @typescript-eslint/parser 
+npm install -D typescript nodemon ts-node rimraf eslint prettier eslint-config-prettier @types/node @types/express@4.17.21 @types/cors @types/dotenv @types/mongoose @typescript-eslint/eslint-plugin @typescript-eslint/parser 
 
 # Create folder structure
 $folders = @("src", "src/routes", "src/types", "src/controllers", "src/models", "src/middlewares", "src/configs", "src/utils", "src/helpers")
@@ -194,7 +194,7 @@ PORT=
 		{
 			"src": "/(.*)",
 			"dest": "src/index.ts",
-			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+			"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"]
 		}
 	]
 }
@@ -220,7 +220,7 @@ const port = process.env.PORT || 4242;
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Test Route
 app.get('/', (_req: Request, res: Response) => {
 	res.status(200).send({ success: true, message: '🏃 Server is Running!' });
 });
@@ -238,7 +238,7 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
 // Final/Global Error Handler
 app.use(
 	(error: IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
-		console.error('❌	Error: ' + error.message);
+		console.error('🛑 Error: ' + error.message);
 		res.status(error.status || 500).send({
 			success: false,
 			message: error.message || 'Internal Server Error!',
@@ -247,16 +247,16 @@ app.use(
 );
 
 // Connect to DB and Start the Server
-const runServer = async () => {
+const startServer = async () => {
 	await connectDB();
 
-	app.listen(port, async () => {
-		console.log('🏃	Server is Running on Port: ', port);
+	app.listen(port, () => {
+		console.log('🟢 Server is Running on Port: ', port);
 	});
 };
 
-// Call runServer
-runServer().catch(console.dir);
+// Call startServer
+startServer().catch(console.dir);
 
 export default app;
 
@@ -282,29 +282,29 @@ export const connectDB = async () => {
 
 		await mongoose.connect(mongoURI);
 
-		console.log('✅	MongoDB is Connected!');
+		console.log('🟢 MongoDB is Connected!');
 
 		// Listen for established connection
 		mongoose.connection.on('connected', () => {
-			console.log('✅	MongoDB is Connected!');
+			console.log('🟢 MongoDB is Connected!');
 		});
 
 		// Listen for connection errors
 		mongoose.connection.on('error', (err) => {
-			console.error('❌	MongoDB Connection Error: ', err.message);
+			console.error('🛑 MongoDB Connection Error: ', err.message);
 		});
 
 		// Optional: Listen for disconnection
 		mongoose.connection.on('disconnected', () => {
-			console.warn('⚠️	MongoDB is Disconnected!');
+			console.error('🔴 MongoDB is Disconnected!');
 		});
 	} catch (error) {
 		if (error instanceof Error) {
-			console.error('❌	MongoDB Connection Failed: ', error.message);
+			console.error('🚫 MongoDB Connection Failed: ', error.message);
 		} else {
-			console.error('⚠️	Unknown Error Occurred!');
+			console.error('🛑 Unknown Error Occurred!');
 		}
-		console.warn('⚠️	MongoDB is Not Connected!');
+		console.error('🔴 MongoDB is Not Connected!');
 		// process.exit(1);
 	}
 };
