@@ -215,9 +215,6 @@ dotenv.config();
 const app: Application = express();
 const port = process.env.PORT || 4242;
 
-// Connect to DB
-connectDB();
-
 // Middlewares
 // TODO: Add CORS Options when project is done!
 app.use(cors());
@@ -249,10 +246,17 @@ app.use(
 	},
 );
 
-// Start the Server
-app.listen(port, async () => {
-	console.log('🏃	Server is Running on Port: ', port);
-});
+// Connect to DB and Start the Server
+const runServer = async () => {
+	await connectDB();
+
+	app.listen(port, async () => {
+		console.log('🏃	Server is Running on Port: ', port);
+	});
+};
+
+// Call runServer
+runServer().catch(console.dir);
 
 export default app;
 
@@ -296,12 +300,12 @@ export const connectDB = async () => {
 		});
 	} catch (error) {
 		if (error instanceof Error) {
-			console.error('❌	MongoDB Connection Failed:', error.message);
+			console.error('❌	MongoDB Connection Failed: ', error.message);
 		} else {
 			console.error('⚠️	Unknown Error Occurred!');
 		}
 		console.warn('⚠️	MongoDB is Not Connected!');
-		process.exit(1);
+		// process.exit(1);
 	}
 };
 
