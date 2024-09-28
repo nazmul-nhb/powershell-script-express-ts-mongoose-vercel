@@ -10,9 +10,6 @@ dotenv.config();
 const app: Application = express();
 const port = process.env.PORT || 4242;
 
-// Connect to DB
-connectDB();
-
 // Middlewares
 // TODO: Add CORS Options when project is done!
 app.use(cors());
@@ -26,9 +23,12 @@ app.get('/', (_req: Request, res: Response) => {
 // Actual Routes
 app.use('/example', exampleRoutes);
 
-// Error Handler for 404
-app.use((_req: Request, _res: Response, next: NextFunction) => {
-	const error: IErrorObject = new Error('Requested URL Not Found!');
+// Error handler for 404
+app.use((req: Request, _res: Response, next: NextFunction) => {
+	const url = req.url.replace('/', '');
+	const error: IErrorObject = new Error(
+		'Requested End-Point ' + url + ' Not Found!',
+	);
 	error.status = 404;
 	next(error);
 });
@@ -36,7 +36,7 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
 // Final/Global Error Handler
 app.use(
 	(error: IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
-		console.error('❌	Error: ' + error.message);
+		console.error('🛑 Error: ' + error.message);
 		res.status(error.status || 500).send({
 			success: false,
 			message: error.message || 'Internal Server Error!',
@@ -44,9 +44,16 @@ app.use(
 	},
 );
 
-// Start the Server
-app.listen(port, async () => {
-	console.log('🏃	Server is Running on Port: ', port);
-});
+// Connect to DB and Start the Server
+const startServer = async () => {
+	await connectDB();
+
+	app.listen(port, () => {
+		console.log('🟢 Server is Running on Port: ', port);
+	});
+};
+
+// Call startServer
+startServer().catch(console.dir);
 
 export default app;

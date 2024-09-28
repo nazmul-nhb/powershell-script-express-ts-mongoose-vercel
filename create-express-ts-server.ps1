@@ -228,9 +228,12 @@ app.get('/', (_req: Request, res: Response) => {
 // Actual Routes
 app.use('/example', exampleRoutes);
 
-// Error Handler for 404
-app.use((_req: Request, _res: Response, next: NextFunction) => {
-	const error: IErrorObject = new Error('Requested URL Not Found!');
+// Error handler for 404
+app.use((req: Request, _res: Response, next: NextFunction) => {
+	const url = req.url.replace('/', '');
+	const error: IErrorObject = new Error(
+		'Requested End-Point ' + url + ' Not Found!',
+	);
 	error.status = 404;
 	next(error);
 });
