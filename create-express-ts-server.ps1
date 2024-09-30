@@ -40,7 +40,7 @@ $packageJson.scripts = $scripts
 $packageJson | ConvertTo-Json -Depth 32 | Set-Content -Path "package.json"
 
 # Install dependencies
-npm install express cors dotenv mongoose
+npm install express@4.21.0 cors dotenv mongoose
 
 # Install devDependencies
 npm install -D typescript nodemon ts-node rimraf eslint prettier eslint-config-prettier @types/node @types/express@4.17.21 @types/cors @types/dotenv @types/mongoose @typescript-eslint/eslint-plugin @typescript-eslint/parser 
