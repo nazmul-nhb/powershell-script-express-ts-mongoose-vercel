@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { ProductDocument } from '../types/model';
+import { IProduct } from '../types/model';
 
-export const ProductSchema = new Schema({
+export const ProductSchema = new Schema<IProduct>({
 	title: {
 		type: String,
 		required: [true, 'Must Provide Product Title!'],
@@ -17,5 +17,5 @@ export const ProductSchema = new Schema({
 	createdAt: { type: Date, default: Date.now },
 });
 
-export const Product = model<ProductDocument>('Product', ProductSchema);
+export const Product = model<IProduct>('Product', ProductSchema);
 
