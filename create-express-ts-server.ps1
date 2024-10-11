@@ -231,7 +231,7 @@ app.use('/example', exampleRoutes);
 // Error handler for 404
 app.use((req: Request, _res: Response, next: NextFunction) => {
 	const error: IErrorObject = new Error(
-		'Requested End-Point ' + req.url + ' Not Found!',
+		'Requested End-Point “' + req.url + '” Not Found!',
 	);
 	error.status = 404;
 	next(error);
@@ -331,23 +331,21 @@ export interface IProductDetails {
 @"
 import { Document } from "mongoose";
 
-export interface IProduct {
+export interface IProduct extends Document {
 	title: string;
 	price: number;
 	productImage: string;
 	createdAt: Date;
 }
 
-export type ProductDocument = IProduct & Document;
-
 "@ > src/types/model.ts
 
 # Add an example mongoose model (with schema)
 @"
 import { Schema, model } from 'mongoose';
-import { ProductDocument } from '../types/model';
+import { IProduct } from '../types/model';
 
-export const ProductSchema = new Schema({
+export const ProductSchema = new Schema<<IProduct>>({
 	title: {
 		type: String,
 		required: [true, 'Must Provide Product Title!'],
@@ -363,7 +361,7 @@ export const ProductSchema = new Schema({
 	createdAt: { type: Date, default: Date.now },
 });
 
-export const Product = model<ProductDocument>('Product', ProductSchema);
+export const Product = model<IProduct>('Product', ProductSchema);
 
 "@ > src/models/exampleModel.ts
 
