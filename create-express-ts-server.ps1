@@ -26,7 +26,7 @@ if ($null -eq $packageJson.scripts) {
 }
 
 # Change the "main" property
-# $packageJson.main = "src/index.ts"
+$packageJson.main = "src/index.ts"
 
 # Add or update the start script
 $scripts["dev"] = "nodemon src/index.ts"
