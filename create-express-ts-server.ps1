@@ -345,7 +345,7 @@ export interface IProduct extends Document {
 import { Schema, model } from 'mongoose';
 import { IProduct } from '../types/model';
 
-export const ProductSchema = new Schema<<IProduct>>({
+export const ProductSchema = new Schema<IProduct>({
 	title: {
 		type: String,
 		required: [true, 'Must Provide Product Title!'],
