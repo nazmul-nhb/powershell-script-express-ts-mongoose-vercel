@@ -32,6 +32,8 @@ $packageJson.main = "src/index.ts"
 $scripts["dev"] = "nodemon src/index.ts"
 $scripts["build"] = "rimraf dist && tsc"
 $scripts["start"] = "node dist/index.js"
+$scripts["lint"] = "eslint . --fix"
+$scripts["format"] = "prettier --write src/"
 
 # Update the scripts property in the packageJson object
 $packageJson.scripts = $scripts
@@ -56,17 +58,17 @@ $files = @(
     "src/models/exampleModel.ts",
     "src/controllers/exampleControllers.ts",
     "src/configs/db.ts",
+    "src/helpers/checkMongoErrors.ts",
     "src/types/interfaces.ts",
     "src/types/model.ts",
     "src/utils/generateSecret.js",
     "README.md",
     "tsconfig.json",
     "vercel.json",
-    ".gitignore",
-    ".eslintignore",
-    ".eslintrc.json",
+    "eslint.config.mjs",
     ".prettierignore",
     ".prettierrc.json",
+    ".gitignore",
     ".env"
 )
 $files | ForEach-Object { New-Item -ItemType File -Path $_ }
@@ -79,51 +81,61 @@ dist
 .env
 "@ > .gitignore
 
-# Add .eslintignore content
-@"
-node_modules
-dist
-"@ > .eslintignore
-
 # Add .prettierignore content
 @"
 node_modules
 dist
 "@ > .prettierignore
 
-# Add .eslintrc.json content
+# Add eslint.config.mjs content
 @"
-{
-	"env": {
-		"browser": true,
-		"node": true
-	},
-	"extends": [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/recommended",
-		"prettier"
-	],
+import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import globals from "globals";
+import tsParser from "@typescript-eslint/parser";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import js from "@eslint/js";
+import { FlatCompat } from "@eslint/eslintrc";
 
-	"parser": "@typescript-eslint/parser",
-	"parserOptions": {
-		"ecmaVersion": "latest",
-		"sourceType": "module"
-	},
-	"plugins": ["@typescript-eslint"],
-	"rules": {
-		"no-unused-vars": "warn",
-		"no-unused-expressions": "error",
-		"prefer-const": "error",
-		"no-console": "warn",
-		"no-undef": "error",
-		"semi": ["warn", "always"]
-	},
-	"globals": {
-		"process": "readonly"
-	}
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({
+    baseDirectory: __dirname,
+    recommendedConfig: js.configs.recommended,
+    allConfig: js.configs.all
+});
 
-"@ > .eslintrc.json
+export default [{
+    ignores: ["**/node_modules", "**/dist"],
+}, ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"), {
+    plugins: {
+        "@typescript-eslint": typescriptEslint,
+    },
+
+    languageOptions: {
+        globals: {
+            ...globals.browser,
+            ...globals.node,
+            process: "readonly",
+        },
+
+        parser: tsParser,
+        ecmaVersion: "latest",
+        sourceType: "module",
+    },
+
+    rules: {
+        "no-unused-vars": "off",
+        "no-unused-expressions": "warn",
+        "prefer-const": "warn",
+        "no-console": "off",
+        "no-undef": "error",
+        semi: ["warn", "always"],
+        "@typescript-eslint/no-empty-object-type": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+    },
+}];
+"@ > eslint.config.mjs
 
 # Add .prettierrc.json content
 @"
@@ -313,10 +325,34 @@ export const connectDB = async () => {
 
 "@ > src/configs/db.ts
 
+# Helper function to handle mongoose duplicate errors
+@"
+import type { IMongoDuplicateKeyError } from '../types/interfaces';
+
+// Type guard for Mongoose duplicate key error
+export const isMongoDuplicateKeyError = (
+	error: unknown,
+): error is IMongoDuplicateKeyError => {
+	return (
+		typeof error === 'object' &&
+		error !== null &&
+		'code' in error &&
+		(error as { code: number }).code === 11000 &&
+		'keyValue' in error
+	);
+};
+
+"@ > src/helpers/checkMongoErrors.ts
+
 # Add basic interface
 @"
 export interface IErrorObject extends Error {
 	status?: number;
+}
+
+export interface IMongoDuplicateKeyError {
+	code: number;
+	keyValue: Record<string, unknown>;
 }
 
 export interface IProductDetails {
