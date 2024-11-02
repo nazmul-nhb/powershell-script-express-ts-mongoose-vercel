@@ -61,7 +61,7 @@ $files = @(
     "src/helpers/checkMongoErrors.ts",
     "src/types/interfaces.ts",
     "src/types/model.ts",
-    "src/utils/generateSecret.js",
+    "src/utils/generateSecret.mjs",
     "README.md",
     "tsconfig.json",
     "vercel.json",
@@ -181,7 +181,7 @@ export default [{
 - TypeScript Configuration
 - MongoDB Configuration with Mongoose
 - `index.ts` file
-- `generateSecret.js` in utilities folder to generate 64 bit secret code
+- `generateSecret.mjs` in utilities folder to generate 64 bit secret code
 "@ > README.md
 
 # Add environment variables
@@ -699,12 +699,12 @@ export default router;
 
 # Generate 64 Bit Secret Hex Code
 @"
-const crypto = require("crypto");
+import { randomBytes } from "crypto";
 
-const secret = crypto.randomBytes(64).toString("hex");
+const secret = randomBytes(64).toString("hex");
 
 console.log(secret);
-"@ > src/utils/generateSecret.js
+"@ > src/utils/generateSecret.mjs
 
 # Output success message
 Write-Host "Express.js TypeScript Server Template Created Successfully in '$ProjectName'!"
